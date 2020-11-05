@@ -30,7 +30,7 @@ VL53L3CX_init()
     dev.comms_type = 1;
     dev.comms_speed_khz = 400;
     /* Waiting for device to start */
-    if(VL53LX_WaitDeviceBooted(i2c) == VL53LX_ERROR_NONE)
+    if(VL53LX_WaitDeviceBooted(dev) == VL53LX_ERROR_NONE)
     {
         printf("Device Started");
     }
@@ -41,7 +41,7 @@ VL53L3CX_init()
 
     // Setting device address
 
-    if(VL53LX_SetDeviceAddress(i2c, SLAVEADDRESS) == VL53LX_ERROR_NONE)
+    if(VL53LX_SetDeviceAddress(dev, SLAVEADDRESS) == VL53LX_ERROR_NONE)
     {
         printf("Device address set");
     }
@@ -52,7 +52,7 @@ VL53L3CX_init()
 
     // Setting offset correction mode
 
-    if(VL53LX_SetOffsetCorrectionMode(i2c, VL53LX_OFFSETCORRECTIONMODE_STANDARD) == VL53LX_ERROR_NONE)
+    if(VL53LX_SetOffsetCorrectionMode(dev, VL53LX_OFFSETCORRECTIONMODE_STANDARD) == VL53LX_ERROR_NONE)
     {
         printf("Offset correction mode set to Standard");
     }
