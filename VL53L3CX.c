@@ -9,26 +9,44 @@
 /* INCLUDES */
 
 #include "vl53lx_api.h"
+#include <ti/drivers/I2C.h>
 /* MACROS */
 
 #define SLAVEADDRESS 0x52
+#define SENSOR_INDEX 0
+
 
 /* Data Definition */
 uint32_t  MeasurementTimingBudgetMicroSeconds = 3000000;
 uint8_t DataReady = 0;
 
+I2C_Params params;
+I2C_Handle i2cHandle;
+
 VL53LX_DEV  dev = {0};
 VL53LX_MultiRangingData_t Data = {0};
 
 
-VL53L3CX_init()
+void VL53L3CX_init()
 {
+    //Initializing I2C instance
+
+
+    I2C_init();
+
+    params.bitRate = I2C_400kHz;
+
+    I2C_Params_init(&params);
+
+    i2cHandle = I2C_open(SENSOR_INDEX, &params);
+
+
     //Initializing device handle
 
-    dev.i2c_slave_address = SLAVEADDRESS;
-    dev.new_data_ready_poll_duration_ms = MeasurementTimingBudgetMicroSeconds;
-    dev.comms_type = 1;
-    dev.comms_speed_khz = 400;
+    dev->i2c_slave_address = SLAVEADDRESS;
+    dev->comms_type = 1;
+    dev->comms_speed_khz = 400;
+    dev->I2cHandle = &i2cHandle;
     /* Waiting for device to start */
     if(VL53LX_WaitDeviceBooted(dev) == VL53LX_ERROR_NONE)
     {
@@ -95,7 +113,7 @@ VL53L3CX_init()
     }
 }
 
-VL53L3CX_Measure()
+void VL53L3CX_Measure()
 {
     if(VL53LX_StartMeasurement(dev) == VL53LX_ERROR_NONE)
     {
@@ -117,11 +135,15 @@ VL53L3CX_Measure()
     if(VL53LX_GetMultiRangingData(dev, &Data) == VL53LX_ERROR_NONE)
     {
         printf("\nTime: %d", Data.TimeStamp);
-        printf("\n Stream Count : %d", Data.StreanCount);
+        printf("\n Stream Count : %d", Data.StreamCount);
         printf("\nNumber of Objects: %d", Data.NumberOfObjectsFound);
         for(int i = 0; i < Data.NumberOfObjectsFound ; i++)
         {
-            printf("\n Distance %d: %d", i+1, Data.RangeData[i]);
+            printf("\n**********************Object %d************************", i+1);
+            printf("\n Max Distance: %d",Data.RangeData[i].RangeMaxMilliMeter);
+            printf("\n Min Distance: %d",Data.RangeData[i].RangeMinMilliMeter);
+            printf("\n Distance in mm: %d",Data.RangeData[i].RangeMilliMeter);
+            printf("\n*******************************************************");
         }
 
     }
